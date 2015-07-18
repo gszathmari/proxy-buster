@@ -39,7 +39,7 @@ This test will return the number of additional inline scripts on website mirrors
 $ python buster.py -i -u <original website URL> [<mirror website URL>, ...]
 ```
 
-The application parses the HTML code of the original and mirror websites and extracts inline scripts between `<script>` tags. In case a mirror is injecting additional JavaScript code, the application will return the total number. When `-v` switch is on, it will also list the contents of these additional scripts.
+The application parses the HTML code of the original and mirror websites and extracts inline scripts between `<script></script>` tags. In case a mirror is injecting additional JavaScript code, the application will return the total number. When `-v` switch is on, it will also list the contents of these additional scripts.
 
 ### Comparing External Script URLs
 
