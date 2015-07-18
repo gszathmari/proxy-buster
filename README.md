@@ -2,7 +2,7 @@
 
 Analyze mirrors of any website for injected JavaScript code
 
-This application retrieves the HTML page of a website and its mirrors, then analyses the code for additional scripts (ads, exploit kits etc.) that evil mirrors may inject.
+This application retrieves the HTML page of a website and its mirrors, then analyses its code for additional scripts (ads, exploit kits etc.) that evil mirrors may inject
 
 ## Usage
 
