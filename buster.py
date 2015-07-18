@@ -134,13 +134,14 @@ def diff_external_script_contents(original, mirror):
     return results
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Compare JavaScript assets between a website and its mirrors")
+    parser = argparse.ArgumentParser(description="Compare JavaScript assets between a selected website and its mirrors")
+    groupMandatory = parser.add_argument_group('available mirror tests')
     parser.add_argument('-u', '--url', help='original website URL', required=True)
-    parser.add_argument('mirrors', help='list of mirror website URLs', metavar='URLs', nargs='*')
-    parser.add_argument('-o', '--output', help='print results into CSV file', metavar='file')
-    parser.add_argument('-i', '--inline', help='compare inline scripts between <script></script> tags', action='store_true')
-    parser.add_argument('-e', '--external', help='compare list of URLs in <script src="">', action='store_true')
-    parser.add_argument('-a', '--assets', help='compare contents of matching external scripts', action='store_true')
+    parser.add_argument('mirrors', help='list of mirror website URLs', metavar='mirror', nargs='*')
+    groupMandatory.add_argument('-i', '--inline', help='compare inline scripts between <script></script> tags', action='store_true')
+    groupMandatory.add_argument('-e', '--external', help='compare list of URLs in <script src="">', action='store_true')
+    groupMandatory.add_argument('-a', '--assets', help='compare contents of matching external scripts', action='store_true')
+    groupMandatory.add_argument('-o', '--output', help='print test statistics into CSV file', metavar='file')
     parser.add_argument('-v', '--verbose', help='print contents of results', action='store_true')
     parser.add_argument('-d', '--debug', help='debug mode', action='store_true')
 
