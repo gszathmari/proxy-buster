@@ -48,12 +48,15 @@ class Website:
         self.url = url_object.geturl()
         self.scheme = url_object.scheme
         self.error = None
+        self.title = None
         self.inline_scripts = []
         self.external_script_urls = []
         try:
             r = requests.get(self.url, timeout=TIMEOUT, headers=HEADERS)
             if r.status_code == 200:
                 soup = BeautifulSoup(r.text, 'html.parser')
+                # Store <title> tag for the comparisons
+                self.title = str(soup.title)
                 # Parse HTML for <script> tags
                 for tag in soup.find_all("script"):
                     # If tag is <script src="">
@@ -154,6 +157,9 @@ if __name__ == "__main__":
                 # Skip test if URL does not exist in data file
                 if not mirror:
                     print("-> %s does not exist in data file, skipping ...\n" % url)
+                # Skip if <title> between original and mirror does not match
+                elif mirror.title != original.title:
+                    pass
                 else:
                     line = []
                     # Generate CSV data
@@ -175,6 +181,9 @@ if __name__ == "__main__":
             # Skip test if URL does not exist in data file
             if not mirror:
                 print("-> %s does not exist in data file, skipping ...\n" % url)
+            # Skip if <title> between original and mirror does not match
+            elif mirror.title != original.title:
+                print("-> %s does not resemble to original, skipping ...\n" % url)
             else:
                 print("\n%s <=> %s" % (original.url, mirror.url))
                 print('-' * 60)
@@ -197,6 +206,9 @@ if __name__ == "__main__":
             # Skip test if URL does not exist in data file
             if not mirror:
                 print("-> %s does not exist in data file, skipping ...\n" % url)
+            # Skip if <title> between original and mirror does not match
+            elif mirror.title != original.title:
+                print("-> %s does not resemble to original, skipping ...\n" % url)
             else:
                 print("\n%s <=> %s" % (original.url, mirror.url))
                 print('-' * 60)
