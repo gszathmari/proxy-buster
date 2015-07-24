@@ -164,7 +164,7 @@ if __name__ == "__main__":
                 if not mirror:
                     print("-> %s does not exist in data file, skipping ...\n" % url)
                 # Skip if <title> between original and mirror does not match
-                elif mirror.title != original.title:
+                elif original.title not in mirror.title:
                     pass
                 else:
                     line = []
@@ -188,7 +188,7 @@ if __name__ == "__main__":
             if not mirror:
                 print("-> %s does not exist in data file, skipping ...\n" % url)
             # Skip if <title> between original and mirror does not match
-            elif mirror.title != original.title:
+            elif original.title not in mirror.title:
                 print("-> %s does not resemble to original, skipping ...\n" % url)
             else:
                 print("\n%s <=> %s" % (original.url, mirror.url))
@@ -213,7 +213,7 @@ if __name__ == "__main__":
             if not mirror:
                 print("-> %s does not exist in data file, skipping ...\n" % url)
             # Skip if <title> between original and mirror does not match
-            elif mirror.title != original.title:
+            elif original.title not in mirror.title:
                 print("-> %s does not resemble to original, skipping ...\n" % url)
             else:
                 print("\n%s <=> %s" % (original.url, mirror.url))
