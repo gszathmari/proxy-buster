@@ -45,7 +45,7 @@ class Website:
             if r.status_code == 200:
                 soup = BeautifulSoup(r.text, 'html.parser')
                 # Store <title> tag for the comparisons
-                self.title = str(soup.title)
+                self.title = soup.title.string
                 # Parse HTML for <script> tags
                 for tag in soup.find_all("script"):
                     # If tag is <script src="">
