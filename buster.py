@@ -149,13 +149,16 @@ if __name__ == "__main__":
             header = ["Original", "Mirror", "Additional Inline Scripts", "Additional External Scripts"]
             file.write("%s\n" % separator.join(header))
             for url in mirror_urls:
-                mirror = Mirror.get(url)
+                # Retrieve data from shelve file
+                mirror = mirrors[url]
                 line = []
+                # Generate CSV data
                 line.append(original.url)
                 line.append(mirror.url)
                 line.append(len(diff_inline_scripts(original, mirror)))
                 line.append(len(diff_external_script_urls(original, mirror)))
                 output = map(str, line)
+                # Add data to CSV
                 file.write("%s\n" % separator.join(output))
         file.close()
         print("\n-> Output has been written to: %s\n" % args.output)
