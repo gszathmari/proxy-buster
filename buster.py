@@ -11,8 +11,10 @@ from bs4 import BeautifulSoup
 TIMEOUT = 5
 # Fake user agent because of mischevious mirrors
 HEADERS = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/600.7.12 (KHTML, like Gecko) Version/8.0.7 Safari/600.7.12'}
+# CSV SEPARATOR
+SEPARATOR = ','
 
-class Mirrors:
+class WebsiteDB:
     def __init__(self, filename):
         self.data = shelve.open(filename)
 
@@ -22,24 +24,11 @@ class Mirrors:
         except KeyError:
             pass
 
+    def __setitem__(self, url, data):
+        self.data[url] = data
+
     def close(self):
         self.data.close()
-
-    # Retrieve website mirrors
-    def populate(self, urls):
-        counter = 1
-        for url in urls:
-            print("-> Retrieving mirror (%s/%s): %s" % (counter, len(mirror_urls), url))
-            # Create website Object
-            mirror = Website(url)
-            # Do not add if retrieval was not successful
-            if mirror.has_errors() is None:
-                self.data[url] = mirror
-            else:
-                print("There was an error while retrieving %s, skipping ..." % url)
-                if args.debug:
-                    print("Message: %s\n" % mirror.has_errors())
-            counter += 1
 
 # Object to store website data
 class Website:
@@ -80,16 +69,6 @@ class Website:
     def get_external_script_urls(self):
         return sorted(self.external_script_urls)
 
-# Retrieve original website for comparison
-def retrieve_original(url):
-    print("-> Retrieving original: %s\n" % args.url)
-    original = Website(url)
-    # If download fails, give up and exit
-    if original.has_errors():
-        sys.exit("\nERROR: Cannot retrieve URL, please try again")
-    else:
-        return original
-
 # Extract inline scripts from original and mirror and return the differences
 def diff_inline_scripts(original, mirror):
     original_inline_scripts = original.get_inline_scripts()
@@ -110,6 +89,32 @@ def diff_external_script_urls(original, mirror):
             results.append(mirror_url)
     return results
 
+# Retrieve original website for comparison
+def retrieve_original(url, db):
+    print("-> Retrieving original: %s\n" % args.url)
+    website = Website(url)
+    # If download fails, give up and exit
+    if website.has_errors():
+        sys.exit("\nERROR: Cannot retrieve URL, please try again")
+    else:
+        db[url] = website
+
+# Retrieve website mirrors
+def populate_database_with_mirrors(urls, db):
+    counter = 1
+    for url in urls:
+        print("-> Retrieving website (%s/%s): %s" % (counter, len(urls), url))
+        # Create website Object
+        mirror = Website(url)
+        # Do not add if retrieval was not successful
+        if mirror.has_errors() is None:
+            db[url] = mirror
+        else:
+            print("There was an error while retrieving %s, skipping ..." % url)
+            if args.debug:
+                print("Message: %s\n" % mirror.has_errors())
+        counter += 1
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Compare JavaScript assets between a selected website and its mirrors")
     groupMandatory = parser.add_argument_group('available mirror tests')
@@ -127,6 +132,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    # Load database
+    db = WebsiteDB(args.file)
+
     if args.mirror_list:
         mirror_urls = []
         with open(args.mirror_list, 'r') as f:
@@ -135,25 +143,23 @@ if __name__ == "__main__":
     else:
         mirror_urls = args.mirrors
 
-    # Retrieve original website
-    original = retrieve_original(args.url)
-
-    # Load mirrors data file
-    mirrors = Mirrors(args.file)
-
     if not args.nocheck:
-        # Populate mirrors data file
-        mirrors.populate(mirror_urls)
+        # Add original website to db
+        retrieve_original(args.url, db)
+        # Populate db file with mirrors
+        populate_database_with_mirrors(mirror_urls, db)
+
+    # Retrieve original website from db
+    original = db[args.url]
 
     # Generate CSV file with stats
     if args.output:
-        separator = ','
         with open(args.output, 'w') as file:
             header = ["Original", "Mirror", "Additional Inline Scripts", "Additional External Scripts"]
-            file.write("%s\n" % separator.join(header))
+            file.write("%s\n" % SEPARATOR.join(header))
             for url in mirror_urls:
                 # Retrieve data from shelve file
-                mirror = mirrors[url]
+                mirror = db[url]
                 # Skip test if URL does not exist in data file
                 if not mirror:
                     print("-> %s does not exist in data file, skipping ...\n" % url)
@@ -169,7 +175,7 @@ if __name__ == "__main__":
                     line.append(len(diff_external_script_urls(original, mirror)))
                     output = map(str, line)
                     # Add data to CSV
-                    file.write("%s\n" % separator.join(output))
+                    file.write("%s\n" % SEPARATOR.join(output))
         file.close()
         print("\n-> Output has been written to: %s\n" % args.output)
 
@@ -177,7 +183,7 @@ if __name__ == "__main__":
         print("\nCOMPARING INLINE SCRIPTS WITH ORIGINAL SITE")
         print('=' * 60)
         for url in mirror_urls:
-            mirror = mirrors[url]
+            mirror = db[url]
             # Skip test if URL does not exist in data file
             if not mirror:
                 print("-> %s does not exist in data file, skipping ...\n" % url)
@@ -202,7 +208,7 @@ if __name__ == "__main__":
         print("\nDIFFERENCES IN LIST OF EXTERNAL SCRIPTS WITH ORIGINAL SITE")
         print('=' * 60)
         for url in mirror_urls:
-            mirror = mirrors[url]
+            mirror = db[url]
             # Skip test if URL does not exist in data file
             if not mirror:
                 print("-> %s does not exist in data file, skipping ...\n" % url)
@@ -222,5 +228,5 @@ if __name__ == "__main__":
                 else:
                     print("-> Phew! No difference is found, list of external scripts match\n")
 
-mirrors.close()
+db.close()
 print("Done.\n")
