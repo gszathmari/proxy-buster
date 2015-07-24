@@ -151,15 +151,19 @@ if __name__ == "__main__":
             for url in mirror_urls:
                 # Retrieve data from shelve file
                 mirror = mirrors[url]
-                line = []
-                # Generate CSV data
-                line.append(original.url)
-                line.append(mirror.url)
-                line.append(len(diff_inline_scripts(original, mirror)))
-                line.append(len(diff_external_script_urls(original, mirror)))
-                output = map(str, line)
-                # Add data to CSV
-                file.write("%s\n" % separator.join(output))
+                # Skip test if URL does not exist in data file
+                if not mirror:
+                    print("-> %s does not exist in data file, skipping ...\n" % url)
+                else:
+                    line = []
+                    # Generate CSV data
+                    line.append(original.url)
+                    line.append(mirror.url)
+                    line.append(len(diff_inline_scripts(original, mirror)))
+                    line.append(len(diff_external_script_urls(original, mirror)))
+                    output = map(str, line)
+                    # Add data to CSV
+                    file.write("%s\n" % separator.join(output))
         file.close()
         print("\n-> Output has been written to: %s\n" % args.output)
 
@@ -168,43 +172,43 @@ if __name__ == "__main__":
         print('=' * 60)
         for url in mirror_urls:
             mirror = mirrors[url]
-            # Skip if URL does not exist in data file
+            # Skip test if URL does not exist in data file
             if not mirror:
                 print("-> %s does not exist in data file, skipping ...\n" % url)
-                break
-            print("\n%s <=> %s" % (original.url, mirror.url))
-            print('-' * 60)
-            results = diff_inline_scripts(original, mirror)
-            if len(results) > 0:
-                print("!!! %s additional inline scripts found, use '-v' for more details\n" % (len(results)))
-                if args.verbose:
-                    print("!!! The following inline scripts are inserted on this mirror:")
-                    for result in results:
-                        print("\n%s\n" % result)
-                        print('- ' * 32)
             else:
-                print("-> Phew! No difference is found, all inline scripts match\n")
+                print("\n%s <=> %s" % (original.url, mirror.url))
+                print('-' * 60)
+                results = diff_inline_scripts(original, mirror)
+                if len(results) > 0:
+                    print("!!! %s additional inline scripts found, use '-v' for more details\n" % (len(results)))
+                    if args.verbose:
+                        print("!!! The following inline scripts are inserted on this mirror:")
+                        for result in results:
+                            print("\n%s\n" % result)
+                            print('- ' * 32)
+                else:
+                    print("-> Phew! No difference is found, all inline scripts match\n")
 
     if args.external:
         print("\nDIFFERENCES IN LIST OF EXTERNAL SCRIPTS WITH ORIGINAL SITE")
         print('=' * 60)
         for url in mirror_urls:
             mirror = mirrors[url]
-            # Skip if URL does not exist in data file
+            # Skip test if URL does not exist in data file
             if not mirror:
                 print("-> %s does not exist in data file, skipping ...\n" % url)
-                break
-            print("\n%s <=> %s" % (original.url, mirror.url))
-            print('-' * 60)
-            results = diff_external_script_urls(original, mirror)
-            if len(results) > 0:
-                print("!!! %s additional scripts found, use '-v' for more details\n" % (len(results)))
-                if args.verbose:
-                    print("!!! Injected scripts:")
-                    for result in results:
-                        print("  <script src=\"%s\">" % result.geturl())
             else:
-                print("-> Phew! No difference is found, list of external scripts match\n")
+                print("\n%s <=> %s" % (original.url, mirror.url))
+                print('-' * 60)
+                results = diff_external_script_urls(original, mirror)
+                if len(results) > 0:
+                    print("!!! %s additional scripts found, use '-v' for more details\n" % (len(results)))
+                    if args.verbose:
+                        print("!!! Injected scripts:")
+                        for result in results:
+                            print("  <script src=\"%s\">" % result.geturl())
+                else:
+                    print("-> Phew! No difference is found, list of external scripts match\n")
 
 mirrors.close()
 print("Done.\n")
