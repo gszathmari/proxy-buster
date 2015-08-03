@@ -24,12 +24,20 @@ Run the script as the following:
 $ python buster.py -u <original website URL> [<mirror website URL>, ...]
 ```
 
-Use one or more of the following switches:
+#### Switches
 
-* ``-i, --inline``: Compare inline scripts
-* ``-e, --external``: Compare URLs pointing to external scripts
-* ``-a, --assets``: Compare matching external scripts
-* ``-o, --output``: Write test statistics into file
+* ``-u, --url``: Original website to compare the mirrors
+* ``-i, --inline``: (optional) Compare inline scripts
+* ``-e, --external``: (optional) Compare URLs pointing to external scripts
+* ``-v, --verbose``: (optional) Dump contents of inline and external scripts to command-line
+* ``-o, --output``: (optional) Write result statistics into a CSV file
+* ``-m, --mirror-list``: (optional) Supply list of mirrors from file instead the command-line. One URL per line.
+* ``-f, --file``: (optional) Store raw HTTP responses in this file instead of ``mirrors.dat``
+* ``-n, --nocheck``: (optional) Get HTTP responses from raw file instead of the Internet
+
+#### Data File
+
+HTTP responses are stored on disk in ``mirrors.dat`` instead of memory. This allows to store raw results or resume operations for later.
 
 ## Documentation
 

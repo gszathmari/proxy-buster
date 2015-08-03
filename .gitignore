@@ -1,3 +1,6 @@
+# Raw data file used by proxy-buster
+mirrors.dat
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
