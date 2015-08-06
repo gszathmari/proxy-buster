@@ -93,7 +93,7 @@ This project was inspired by the following project:
 
 * [Analyzing 443 free proxies - Only 21% are not shady](https://blog.haschek.at/2015-analyzing-443-free-proxies)
 
-The project was first featured on the [Rainbow and Unicorn](https://blog.gaborszathmari.me/) security blog
+The project was first featured on the [Rainbow and Unicorn](https://blog.gaborszathmari.me/2015/08/05/malware-injecting-torrent-mirrors/) security blog
 
 ## License
 
